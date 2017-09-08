@@ -9,15 +9,9 @@ MOAI comes with a development server that can be used for testing. In production
 Installation Steps
 ==================
 
-MOAI is a normal python package. It is tested with python2.5 and 2.6. 
-I recommend creating a virtualenv to install the package in.
+> git clone git@github.com:SCD-Aix-Marseille-Universite/moai.git
 
-http://pypi.python.org/pypi/virtualenv/
-
-This makes development and deployment easier.
-Instructions below are for unix, but MOAI should also work on Windows
-
-Go into the MOAI directory with the setup.py, and run the virtualenv command
+Go into the MOAI directory with the setup.py, and run the virtualenv command.
 
 > cd moai
 > virtualenv .
@@ -29,8 +23,6 @@ Now, activate the virtualenv
 Install MOAI in the virtualenv using pip
 
 > pip install -e .
-
-(this will take a while)
 
 When this process finishes, Moai and all its dependencies will be installed.
 
@@ -86,10 +78,6 @@ content
 Adding Content
 ==============
 
-The Moai system is designed to periodically fetch content from a `provider`, and convert it to Moai's internal format, which can then be translated to the different metadata formats for the oaipmh feed.
-
-Moai comes with an example that shows this principle:
-
 In the moai/moai directory there are two XML files. Let's pretend these files are from a remote system, and we want to publish them with MOAI.
 
 In the settings.ini file, the following option is specified:
@@ -131,46 +119,3 @@ http://localhost:8080/oai?verb=ListRecords&metadataPrefix=oai_dc
 
 When you run the update_moai script again, it will create a new database with all the records (in this case moai_example.db). It is also possible to specify a data with the --date switch. When a data is specified, only records that were modified after this date will be added. 
 The update_moai script can be run from a daily or hourly cron job to update the database
-
-Adding your own Provider / Content and Metadata Classes
-=======================================================
-
-It's possible and most of the time, needed, to extend Moai for your use-cases.
-The Provider and Content classes from the example might be a good starting point if you want to do that. All your customizations should be registered with Moai through `entry_points`. Have a look at Moais setup.py for more information.
-The best approach would be to create your own python package with setup.py and install this in the same environment as Moai. This will let Moai find your customizations. Note that when you change something in your setup.py, you have to reinstall the package, for Moai to pick up the changes.
-
-Note that the moai.interfaces file contains documentation about the different classes that you can implement.
-
-Adding your own Database
-========================
-
-Instead of writing your own provider/content classes, you can also register your own custom database. Implementing a replacement for moai.database.SQLDatabase can be more complicated then writing a provider/content class, but it has the advantage that Moai is always up to date, and you don't need a second sqlite database.
-
-Have a look at the setup.py file from the MOAI code, it registers several databases. You could use this mechanism to register your own database from your own python package.
-
-In the settings.ini you configuration you can then reference your database ('mydb://some+config+variables').
-
-For the database, have a look at the generic database provider in database.py. The only methods that you need to implement are: oai_sets, oai_earliest_datestamp and oai_query.
-The oai_query method returns dictionaries with record data. The keys of these dictionaries are defined in the metadata files (for example metadata.py),  have a look at the source. 
-
-For oai_dc there are the following names:
-
-'title', 'creator', 'subject', 'description', 'publisher', 'contributor', 'type', 'format', 'identifier', 'source', 'language', 'date', 'relation', 'coverage', 'rights
-
-So a return value would look like::
-
-    {'id': <oai record id>,
-     'deleted': <bool>,
-     'modified': <utc datetime>,
-     'sets': <list of setspecs>,
-     'metadata': {
-       'title': [<list with publication title>],
-       'creator': [<list of creator names>],
-       ...}
-    }
-
- 
-
-
-
-
